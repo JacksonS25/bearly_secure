@@ -241,3 +241,10 @@ func boolToInt64(value bool) int64 {
 	}
 	return 0
 }
+
+func nosniffHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Content-Type-Options", "nosniff")
+		next.ServeHTTP(w, r)
+	})
+}
