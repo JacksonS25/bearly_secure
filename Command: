@@ -1,0 +1,13 @@
+{"email":"mabel@example.com","event":"login_attempt","returnTo":"/","role":"customer","sessionId":"37062a325ba91ca89d21cb8a803d089157fa54929bf25465974898465eda2d04","success":true,"timestamp":"2026-11-11T19:20:48.389Z","userId":1}
+{"email":"helios@gmail.com","event":"login_attempt","returnTo":"/","role":"customer","sessionId":"8bd4c62a8af06562c648a6d3ed9c01796167ff12d998d95c176f94c6967e81ca","success":true,"timestamp":"2026-11-11T19:22:04.035Z","userId":11}
+{"email":"mabel@example.com","event":"login_attempt","returnTo":"/account","role":"customer","sessionId":"a23be301c70a0babbad2278b0e53e6d74692187c18185f08b83d6fe35bc4ae67","success":true,"timestamp":"2026-11-11T19:22:17.052Z","userId":1}
+{"email":"mabel@example.com","event":"password_reset_request","resetLink":"http://localhost:3030/password-reset/reset-1-1794424937054199384","resetToken":"reset-1-1794424937054199384","success":true,"timestamp":"2026-11-11T19:22:17.076Z","userId":1}
+{"email":"mabel@example.com","event":"login_attempt","returnTo":"/","role":"customer","sessionId":"78c84042a0110e1289594b7bfc5f7d45b15fa91f135efaebb1a109a4d7ed170a","success":true,"timestamp":"2026-11-11T19:41:06.882Z","userId":1}
+{"time":"2026-11-11T13:41:06.738334141-06:00","level":"INFO","msg":"account_accessed","userId":1,"email":"mabel@example.com","expiresAt":"2026-12-11T19:41:06.847Z"}
+{"email":"mabel@example.com","event":"login_attempt","returnTo":"/","role":"customer","sessionId":"f4b811bffbbca773ceafbfc6a48ee62b6e499e131cfd8bb7e26d493739418c6b","success":true,"timestamp":"2026-11-11T19:51:48.965Z","userId":1}
+{"email":"mabel@example.com","event":"account_accessed","expiresAt":"2026-12-11T19:51:48.939Z","timestamp":"2026-11-11T19:51:51.867Z","userID":1}
+{"email":"grenda@example.com","event":"login_attempt","returnTo":"/account","role":"customer","sessionId":"374a370ba874af8948463ee1f5b8324a04a49ec8520731791c50709f2b7d1dc0","success":true,"timestamp":"2026-11-11T19:52:38.476Z","userId":8}
+{"email":"grenda@example.com","event":"account_accessed","expiresAt":"2026-12-11T19:52:38.464Z","timestamp":"2026-11-11T19:52:38.478Z","userID":8}
+{"email":"grenda@example.com","event":"login_attempt","returnTo":"/account","role":"customer","sessionId":"79e724faa66ec86764126d22b0b44337c5ff7b63ec0b763c1e00cddf0ee86b0d","success":true,"timestamp":"2026-11-11T19:55:10.600Z","userId":8}
+{"email":"grenda@example.com","event":"account_accessed","expiresAt":"2026-12-11T19:55:10.576Z","timestamp":"2026-11-11T19:55:10.609Z","userId":8}
+{"email":"mabel@example.com","event":"login_attempt","returnTo":"/","role":"customer","sessionId":"70a4d36c5fe1c6869d0ec07e7c101ef1ad9e6d8cf24d37fd1cbf6d0237786f5a","success":true,"timestamp":"2026-11-11T20:03:45.346Z","userId":1}
