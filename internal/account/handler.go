@@ -64,6 +64,16 @@ func (handler *Handler) Page(responseWriter http.ResponseWriter, request *http.R
 	if err := handler.renderPage(responseWriter, http.StatusOK, current, ""); err != nil {
 		handler.internalError(responseWriter, request, err)
 	}
+	file, err := logging.Open("data/bearly-secure.log")
+	if err != nil {
+		handler.internalError(responseWriter, request, err)
+	}
+	file.Event("account_accessed", map[string]any{
+		"userId":    current.Session.UserID,
+		"email":     current.User.Email,
+		"expiresAt": current.Session.ExpiresAt,
+	})
+	file.Close()
 }
 
 func (handler *Handler) UpdateEmail(responseWriter http.ResponseWriter, request *http.Request) {
