@@ -106,6 +106,21 @@ func (handler *Handler) WarehouseOrders(responseWriter http.ResponseWriter, requ
 			ID: order.ID, Status: order.Status, TotalCents: order.TotalCents, CreatedAt: order.CreatedAt,
 		})
 	}
+	value := request.Header.Get("X-API-Key")
+	key, found, err := handler.apiStore.FindKey(request.Context(), value)
+	if err != nil {
+		httpx.RespondWithError(responseWriter, http.StatusUnauthorized, err.Error())
+		return
+	}
+	if !found {
+		httpx.RespondWithError(responseWriter, http.StatusUnauthorized, "")
+		return
+	}
+	if key.Scope != "orders:read" {
+		httpx.RespondWithError(responseWriter, http.StatusForbidden, "")
+		return
+	}
+
 	httpx.RespondWithJSON(responseWriter, http.StatusOK, map[string]any{
 		"integration": "Warehouse Fulfillment Integration",
 		"orders":      responses,
