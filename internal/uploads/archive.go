@@ -67,6 +67,11 @@ func ExtractTaxDocumentArchive(encryptionKeyring Keyring, contents []byte, extra
 	importDirectory := filepath.Join(extractionDirectory, identifier.String())
 	plannedEntries := make([]plannedArchiveEntry, 0, len(archiveReader.File))
 	for _, entry := range archiveReader.File {
+		if filepath.IsAbs(entry.Name) || strings.Contains(entry.Name, `\`) || !isInsideDirectory(importDirectory, filepath.Join(importDirectory, entry.Name)) || entry.Mode()&os.ModeSymlink != 0 {
+			return ExtractedTaxDocumentArchive{}, &ArchiveImportError{Message: "Choose a valid ZIP archive.", StatusCode: 400}
+		}
+	}
+	for _, entry := range archiveReader.File {
 		entryDestination := filepath.Join(importDirectory, entry.Name)
 		if isIgnoredArchiveEntry(entry.Name) {
 			continue
@@ -186,4 +191,15 @@ func discardArchiveAfterWriteFailure(archive ExtractedTaxDocumentArchive, err er
 		return ExtractedTaxDocumentArchive{}, errors.Join(err, discardErr)
 	}
 	return ExtractedTaxDocumentArchive{}, err
+}
+
+func isInsideDirectory(directory, candidatePath string) bool {
+	relativePath, err := filepath.Rel(directory, candidatePath)
+	if err != nil ||
+		relativePath == "." ||
+		relativePath == ".." ||
+		strings.HasPrefix(relativePath, ".."+string(filepath.Separator)) {
+		return false
+	}
+	return true
 }
