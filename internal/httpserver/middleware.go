@@ -9,6 +9,7 @@ import (
 	"math"
 	"net"
 	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 	"strings"
@@ -247,4 +248,53 @@ func nosniffHeader(next http.Handler) http.Handler {
 		w.Header().Add("X-Content-Type-Options", "nosniff")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func originVerification(appOrigin string, renderer *templates.Renderer) middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
+			if request.Method != http.MethodPost {
+				next.ServeHTTP(responseWriter, request)
+				return
+			}
+
+			originHeader := request.Header.Get("Origin")
+			if originHeader != "" {
+				if appOrigin == originHeader {
+					next.ServeHTTP(responseWriter, request)
+					return
+				}
+				if err := httpx.RespondWithErrorPage(responseWriter, renderer, http.StatusForbidden, "Forbidden", "Invalid Origin header"); err != nil {
+					http.Error(responseWriter, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				}
+				return
+			}
+
+			refererHeader := request.Header.Get("Referer")
+			if refererHeader == "" {
+				if err := httpx.RespondWithErrorPage(responseWriter, renderer, http.StatusForbidden, "Forbidden", "Missing request source"); err != nil {
+					http.Error(responseWriter, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				}
+				return
+			}
+
+			u, err := url.Parse(refererHeader)
+			if err != nil || u.Scheme == "" || u.Host == "" {
+				if err := httpx.RespondWithErrorPage(responseWriter, renderer, http.StatusForbidden, "Forbidden", "Malformed Referer header"); err != nil {
+					http.Error(responseWriter, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				}
+				return
+			}
+
+			refererOrigin := u.Scheme + "://" + u.Host
+			if refererOrigin == appOrigin {
+				next.ServeHTTP(responseWriter, request)
+				return
+			}
+
+			if err := httpx.RespondWithErrorPage(responseWriter, renderer, http.StatusForbidden, "Forbidden", "Untrusted request source"); err != nil {
+				http.Error(responseWriter, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			}
+		})
+	}
 }
