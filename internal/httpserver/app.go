@@ -214,8 +214,13 @@ func New(database *sql.DB, logger *logging.Logger, options Options) (*Applicatio
 			http.Error(responseWriter, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 	})
+	dynamicMux.HandleFunc("OPTIONS /api/products", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", http.MethodGet)
+		httpx.RespondWithJSON(w, http.StatusNoContent, "204 No Content")
+	})
 
-	dynamicHandler := applyMiddleware(dynamicMux, originVerification(options.AppOrigin, renderer), permissiveCORS)
+	dynamicHandler := applyMiddleware(dynamicMux, originVerification(options.AppOrigin, renderer))
 
 	mainMux := http.NewServeMux()
 	mainMux.HandleFunc("GET /health", func(responseWriter http.ResponseWriter, _ *http.Request) {
