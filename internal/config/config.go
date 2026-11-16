@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -36,6 +38,7 @@ type Config struct {
 	MaxPublicProductResults    int
 	ActiveEncryptionKeyVersion string
 	EncryptionKeys             map[string][32]byte
+	DownloadSigningKey         [32]byte
 }
 
 type AttackerLabConfig struct {
@@ -51,11 +54,29 @@ func requireEnvironmentVariable(environment map[string]string, name string) (str
 }
 
 func Load(workingDirectory string) (Config, error) {
-	return Parse(processEnvironment(), workingDirectory)
+	envPath := filepath.Join(workingDirectory, ".env")
+	envMap, err := godotenv.Read(envPath)
+	if err != nil {
+		return Config{}, err
+	}
+	environment := processEnvironment()
+	for key, value := range environment {
+		envMap[key] = value
+	}
+	return Parse(envMap, workingDirectory)
 }
 
 func LoadAttackerLab(workingDirectory string) (AttackerLabConfig, error) {
-	return ParseAttackerLab(processEnvironment())
+	envPath := filepath.Join(workingDirectory, ".env")
+	envMap, err := godotenv.Read(envPath)
+	if err != nil {
+		return AttackerLabConfig{}, err
+	}
+	environment := processEnvironment()
+	for key, value := range environment {
+		envMap[key] = value
+	}
+	return ParseAttackerLab(envMap)
 }
 
 func Parse(environment map[string]string, workingDirectory string) (Config, error) {
@@ -91,6 +112,20 @@ func Parse(environment map[string]string, workingDirectory string) (Config, erro
 		return Config{}, err
 	}
 
+	downloadSigningKey, err := requireEnvironmentVariable(environment, "DOWNLOAD_SIGNING_KEY")
+	if err != nil {
+		return Config{}, err
+	}
+	if len(downloadSigningKey) != 64 {
+		return Config{}, fmt.Errorf("DOWNLOAD_SIGNING_KEY must be exactly 64 hex characters, got %d", len(downloadSigningKey))
+	}
+	decoded, err := hex.DecodeString(downloadSigningKey)
+	if err != nil {
+		return Config{}, fmt.Errorf("DOWNLOAD_SIGNING_KEY must be valid hex: %w", err)
+	}
+	var signingKey [32]byte
+	copy(signingKey[:], decoded)
+
 	return Config{
 		PawPalAPIKey:               pawpalApiKey,
 		AppOrigin:                  appOrigin,
@@ -102,6 +137,7 @@ func Parse(environment map[string]string, workingDirectory string) (Config, erro
 		MaxPublicProductResults:    MaxPublicProductResults,
 		ActiveEncryptionKeyVersion: activeEncryptionKeyVersion,
 		EncryptionKeys:             encryptionKeys,
+		DownloadSigningKey:         signingKey,
 	}, nil
 }
 
